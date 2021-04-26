@@ -6,6 +6,8 @@ import requests
 from flask import Flask, Response, request
 from flask_cors import CORS
 import boto3
+import datetime
+from datetime import datetime
 
 application = Flask(__name__)
 CORS(application, resources={r"/*": {"origins": "*"}})
@@ -76,6 +78,7 @@ def get_frm():
     return Response(json.dumps(str(resp['Items'])), mimetype='application/json', status=200)
     
 # curl -i -X POST -d'{"form_title":"form title1", "form_body":"where is it?","form_type":"finance"}' -H "Content-Type: application/json" http://localhost:8000/set_form/frm4
+# curl -i -X POST -d'{"form_title":"form title1", "form_body":"where is it?","form_type":"finance"}' -H "Content-Type: application/json" http://ec2-34-207-127-59.compute-1.amazonaws.com/set_form/frm5
 @application.route('/set_form/<frm_id>', methods=['POST'])
 def set_doc(frm_id):
     dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
@@ -133,6 +136,14 @@ def get_item():
     print(str(resp))
     return Response(json.dumps(str(resp['Item'])), mimetype='application/json', status=200) 
     
-
+@application.route('/upload_file', methods=['GET'])
+def upload_file():
+    time = str(datetime.now())
+    file_name = 'myUpload' + time
+    bucket = 'my-upload-bucket-nivbn'
+    client = boto3.client('s3')
+    return client.put_object(Body='', Bucket=bucket, Key=file_name)
+    
+    
 if __name__ == '__main__':
     flaskrun(application)
